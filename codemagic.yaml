@@ -34,12 +34,15 @@ workflows:
           echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
           ls -l android/app/google-services.json
 
-      - name: Build release APK
-        script: flutter build apk --release --dart-define=FLUTTER_WEB_AUTOMATIC=true
+      - name: Build release APK (verbose, capture log)
+        script: |
+          set -e
+          flutter build apk --release -v --dart-define=FLUTTER_WEB_AUTOMATIC=true | tee build/build-apk.log
 
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
       - build/app/outputs/flutter-apk/app-release-*.apk
+      - build/build-apk.log
 
     publishing:
       email:

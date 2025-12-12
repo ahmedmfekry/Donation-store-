@@ -29,6 +29,122 @@ class _AddStockScreenState extends State<AddStockScreen> {
   
   bool _isLoading = false;
 
+  void _showQuickAddCategoryDialog() {
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController();
+    final unitController = TextEditingController();
+    bool isSaving = false;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.add_circle, color: AppTheme.primaryColor),
+              SizedBox(width: 8),
+              Text('إضافة صنف جديد'),
+            ],
+          ),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CustomTextField(
+                  label: 'اسم الصنف *',
+                  controller: nameController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'يرجى إدخال اسم الصنف';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                CustomTextField(
+                  label: 'الوحدة *',
+                  controller: unitController,
+                  hintText: 'كرتونة، علبة، قطعة، إلخ',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'يرجى إدخال الوحدة';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: isSaving ? null : () => Navigator.pop(context),
+              child: const Text('إلغاء'),
+            ),
+            ElevatedButton(
+              onPressed: isSaving
+                  ? null
+                  : () async {
+                      if (!formKey.currentState!.validate()) return;
+                      setState(() => isSaving = true);
+                      try {
+                        final newId = await _firestoreService.addCategory(
+                          nameController.text,
+                          unitController.text,
+                        );
+
+                        if (!context.mounted) return;
+
+                        final newCategory = CategoryModel(
+                          id: newId,
+                          name: nameController.text,
+                          unit: unitController.text,
+                          createdAt: DateTime.now(),
+                        );
+
+                        Navigator.pop(context);
+                        setState(() {
+                          _selectedCategory = newCategory;
+                        });
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('✓ تمت إضافة الصنف'),
+                            backgroundColor: AppTheme.successColor,
+                          ),
+                        );
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('خطأ: ${e.toString()}'),
+                              backgroundColor: AppTheme.errorColor,
+                            ),
+                          );
+                        }
+                      } finally {
+                        if (context.mounted) {
+                          setState(() => isSaving = false);
+                        }
+                      }
+                    },
+              child: isSaving
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Text('إضافة'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _quantityController.dispose();
@@ -233,6 +349,7 @@ class _AddStockScreenState extends State<AddStockScreen> {
                       if (value == null) return 'يرجى اختيار الصنف';
                       return null;
                     },
+                    onAddNew: _showQuickAddCategoryDialog,
                   ),
 
                   const SizedBox(height: 16),

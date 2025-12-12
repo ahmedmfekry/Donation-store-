@@ -28,6 +28,111 @@ class _DeductStockScreenState extends State<DeductStockScreen> {
   DateTime? _dispensedDate;
   
   bool _isLoading = false;
+  bool _isAddingCategory = false;
+
+  Future<void> _showQuickAddCategoryDialog() async {
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController();
+    final unitController = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.add_circle, color: AppTheme.primaryColor),
+              SizedBox(width: 8),
+              Text('إضافة صنف جديد'),
+            ],
+          ),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'اسم الصنف *'),
+                  controller: nameController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'يرجى إدخال اسم الصنف';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'الوحدة *',
+                    hintText: 'كرتونة، علبة، قطعة، إلخ',
+                  ),
+                  controller: unitController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'يرجى إدخال الوحدة';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: _isAddingCategory ? null : () => Navigator.pop(context),
+              child: const Text('إلغاء'),
+            ),
+            ElevatedButton(
+              onPressed: _isAddingCategory
+                  ? null
+                  : () async {
+                      if (!formKey.currentState!.validate()) return;
+                      setState(() => _isAddingCategory = true);
+                      try {
+                        final newId = await _firestoreService.addCategory(
+                          nameController.text,
+                          unitController.text,
+                        );
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('✓ تمت إضافة الصنف'),
+                            backgroundColor: AppTheme.successColor,
+                          ),
+                        );
+                        Navigator.pop(context);
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('خطأ: ${e.toString()}'),
+                              backgroundColor: AppTheme.errorColor,
+                            ),
+                          );
+                        }
+                      } finally {
+                        if (context.mounted) {
+                          setState(() => _isAddingCategory = false);
+                        }
+                      }
+                    },
+              child: _isAddingCategory
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Text('إضافة'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -227,15 +332,25 @@ class _DeductStockScreenState extends State<DeductStockScreen> {
                     ),
                   )
                 else ...[
-                  const Text(
-                    'اختر الصنف المراد خصمه:',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'اختر الصنف المراد خصمه:',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: _showQuickAddCategoryDialog,
+                        icon: const Icon(Icons.add, size: 18),
+                        label: const Text('إضافة صنف'),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 12),
-                  
+
                   // Items list
                   ...availableItems.map((item) => Card(
                     margin: const EdgeInsets.only(bottom: 12),

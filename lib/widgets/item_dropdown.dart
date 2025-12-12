@@ -7,6 +7,7 @@ class ItemDropdown extends StatelessWidget {
   final CategoryModel? selectedCategory;
   final void Function(CategoryModel?) onChanged;
   final String? Function(CategoryModel?)? validator;
+  final VoidCallback? onAddNew;
 
   const ItemDropdown({
     super.key,
@@ -15,23 +16,44 @@ class ItemDropdown extends StatelessWidget {
     required this.selectedCategory,
     required this.onChanged,
     this.validator,
+    this.onAddNew,
   });
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<CategoryModel>(
-      value: selectedCategory,
-      decoration: InputDecoration(
-        labelText: label,
-      ),
-      items: categories.map((category) {
-        return DropdownMenuItem<CategoryModel>(
-          value: category,
-          child: Text('${category.name} (${category.unit})'),
-        );
-      }).toList(),
-      onChanged: onChanged,
-      validator: validator,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (onAddNew != null)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                label,
+                style: Theme.of(context).inputDecorationTheme.labelStyle,
+              ),
+              TextButton.icon(
+                onPressed: onAddNew,
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('إضافة صنف'),
+              ),
+            ],
+          ),
+        DropdownButtonFormField<CategoryModel>(
+          value: selectedCategory,
+          decoration: InputDecoration(
+            labelText: onAddNew == null ? label : null,
+          ),
+          items: categories.map((category) {
+            return DropdownMenuItem<CategoryModel>(
+              value: category,
+              child: Text('${category.name} (${category.unit})'),
+            );
+          }).toList(),
+          onChanged: onChanged,
+          validator: validator,
+        ),
+      ],
     );
   }
 }
