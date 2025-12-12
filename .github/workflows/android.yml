@@ -45,11 +45,10 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Build release APK (with log)
-        working-directory: android
+      - name: Build release APK (flutter, suppress analytics)
         run: |
-          mkdir -p ../build
-          ./gradlew assembleRelease --stacktrace --info | tee ../build/gradle-build.log
+          mkdir -p build
+          flutter build apk --release --suppress-analytics -v | tee build/gradle-build.log
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
