@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "82874600358",
+    "project_id": "blood-donation-storage",
+    "storage_bucket": "blood-donation-storage.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:82874600358:android:fe22b178505bc2c997dd67",
+        "android_client_info": {
+          "package_name": "com.bloodcenter.donation_storage"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "82874600358-5nooq4r1gle6s6ctumdlc003uk9hqd5f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABeXaNIz2sG8AuuGsaepxxDoDylqjwsN0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "82874600358-5nooq4r1gle6s6ctumdlc003uk9hqd5f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
