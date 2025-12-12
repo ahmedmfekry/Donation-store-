@@ -37,14 +37,17 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Build release APK
+      - name: Build release APK (with log)
         working-directory: android
-        run: ./gradlew assembleRelease --stacktrace --info
+        run: |
+          mkdir -p ../build
+          ./gradlew assembleRelease --stacktrace --info | tee ../build/gradle-build.log
 
-      - name: Upload APK artifact
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
-
+          name: android-build
+          path: |
+            android/app/build/outputs/apk/release/app-release.apk
+            build/gradle-build.log
 
