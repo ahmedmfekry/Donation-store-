@@ -17,10 +17,6 @@ workflows:
         - $HOME/.pub-cache
         - $FLUTTER_ROOT/.pub-cache
 
-    triggering:
-      events:
-        - manual
-
     scripts:
       - name: Print Flutter version
         script: flutter --version
