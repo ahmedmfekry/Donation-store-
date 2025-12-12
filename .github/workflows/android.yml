@@ -11,6 +11,8 @@ jobs:
       GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
       FLUTTER_SUPPRESS_ANALYTICS: "true"
       CI: "true"
+      FLUTTER_USAGE: "false"
+      DART_VM_OPTIONS: "--disable-dart-dev"
 
     steps:
       - name: Checkout
